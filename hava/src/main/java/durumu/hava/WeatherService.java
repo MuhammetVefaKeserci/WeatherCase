@@ -15,7 +15,6 @@ public class WeatherService {
     private final WeatherRepo weatherRepo;
 
     public WeatherData saveWeatherData(WeatherData weatherData) {
-        // Hava verisini veritabanına kaydetmek için WeatherRepo sınıfını kullanın
         weatherRepo.save(weatherData);
         return weatherData;
     }

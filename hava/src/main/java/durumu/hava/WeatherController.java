@@ -29,11 +29,11 @@ public class WeatherController {
         String apiKey = "b0d92ae513ff109d7758b825f0382832";
         String url = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apiKey;
 
-        ResponseEntity<WeatherR> response = restTemplate.getForEntity(url, WeatherR.class);
-        WeatherR weatherR = response.getBody();
+        ResponseEntity<WeatherApiResponse> response = restTemplate.getForEntity(url, WeatherApiResponse.class);
+        WeatherApiResponse weatherApiResponse = response.getBody();
 
-        double temperature = weatherR.getMain().getTemp();
-        String weatherDescription = weatherR.getWeather().get(0).getDescription();
+        double temperature = weatherApiResponse.getMain().getTemp();
+        String weatherDescription = weatherApiResponse.getWeather().get(0).getDescription();
         LocalDate currentDate = LocalDate.now();
 
         WeatherData weatherData = new WeatherData();
@@ -43,7 +43,7 @@ public class WeatherController {
         weatherData.setWeatherDescription(weatherDescription);
         weatherRepo.save(weatherData);
 
-        return ResponseEntity.status(response.getStatusCode()).body(weatherR);
+        return ResponseEntity.status(response.getStatusCode()).body(weatherApiResponse);
     }
 
 }

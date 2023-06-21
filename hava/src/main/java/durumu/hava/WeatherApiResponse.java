@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Data
-public class WeatherR {
+public class WeatherApiResponse {
     private Main main;
     private List<Weather> weather;
     private LocalDate date;

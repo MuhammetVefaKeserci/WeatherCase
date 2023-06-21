@@ -8,8 +8,14 @@ import org.springframework.web.client.RestTemplate;
 public class AppConfig {
     private RestTemplate restTemplate;
     @Bean
+    public String apiKey() {
+        return "b0d92ae513ff109d7758b825f0382832";
+    }
+
+    @Bean
 public RestTemplate restTemplate() {
         return new RestTemplate();
     }
 
 }
+
