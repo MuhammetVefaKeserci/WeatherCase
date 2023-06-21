@@ -1,19 +1,14 @@
 package durumu.hava;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.cbor.MappingJackson2CborHttpMessageConverter;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
 import java.time.LocalDate;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/weather")
 public class WeatherController {
 
@@ -34,14 +29,13 @@ public class WeatherController {
         String apiKey = "b0d92ae513ff109d7758b825f0382832";
         String url = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apiKey;
 
-        ResponseEntity<WeatherApiResponse> response = restTemplate.getForEntity(url, WeatherApiResponse.class);
-        WeatherApiResponse weatherApiResponse = response.getBody();
+        ResponseEntity<WeatherR> response = restTemplate.getForEntity(url, WeatherR.class);
+        WeatherR weatherR = response.getBody();
 
-        double temperature = weatherApiResponse.getMain().getTemp();
-        String weatherDescription = weatherApiResponse.getWeather().get(0).getDescription();
+        double temperature = weatherR.getMain().getTemp();
+        String weatherDescription = weatherR.getWeather().get(0).getDescription();
         LocalDate currentDate = LocalDate.now();
 
-        // Verileri veritabanına kaydetme
         WeatherData weatherData = new WeatherData();
         weatherData.setCity(city);
         weatherData.setDate(currentDate);
@@ -49,7 +43,7 @@ public class WeatherController {
         weatherData.setWeatherDescription(weatherDescription);
         weatherRepo.save(weatherData);
 
-        return ResponseEntity.status(response.getStatusCode()).body(weatherApiResponse);
+        return ResponseEntity.status(response.getStatusCode()).body(weatherR);
     }
 
 }

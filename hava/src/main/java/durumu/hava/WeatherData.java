@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.time.LocalDate;
 
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 @Data
 @Setter
 @Getter
+@CrossOrigin
 public class WeatherData {
     private String city;
 
