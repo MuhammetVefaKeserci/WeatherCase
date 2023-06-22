@@ -29,7 +29,7 @@ public class WeatherData {
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate date;
-    private Double temperature;
+    private double temperature;
     private String weatherDescription;
 
 
