@@ -1,11 +1,14 @@
 package durumu.hava;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -15,7 +18,7 @@ public class WeatherController {
     private final WeatherRepo weatherRepo;
     private final RestTemplate restTemplate;
 
-    private final WeatherService weatherService;
+    private WeatherService weatherService;
 
     @Autowired
     public WeatherController(RestTemplate restTemplate, WeatherRepo weatherRepo, WeatherService weatherService) {
@@ -23,6 +26,23 @@ public class WeatherController {
         this.weatherService = weatherService;
         this.restTemplate = restTemplate;
     }
+
+    @Autowired
+    public void DateController(WeatherService weatherService) {
+        this.weatherService = weatherService;
+    }
+
+    @GetMapping("/cities/{date}")
+    public ResponseEntity<List<String>> getCitiesByDate(@PathVariable("date") LocalDate date) {
+        List<String> cities = weatherRepo.findCitiesByDate(date);
+
+        if (!cities.isEmpty()) {
+            return ResponseEntity.ok(cities);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
 
     @GetMapping("/{city}")
     public ResponseEntity<?> getWeather(@PathVariable("city") String city) {

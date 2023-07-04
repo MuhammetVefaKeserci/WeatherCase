@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
+
 @Service
 public class WeatherService {
 
@@ -22,6 +24,7 @@ public class WeatherService {
         weatherRepo.save(weatherData);
         return weatherData;
     }
+
 
     public WeatherData getWeatherData(String city) {
         String apiUrl = "http://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units=metric";
