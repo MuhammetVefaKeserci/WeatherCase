@@ -20,7 +20,7 @@ public class WeatherDataScheduler {
         this.weatherService = weatherService;
     }
 
-    @Scheduled(fixedDelay = 60000)
+    @Scheduled(fixedDelay = 120000)
     public void fetchAndSaveWeatherData() {
         for (String city : selectedCities) {
             WeatherData weatherData = weatherService.getWeatherData(city);

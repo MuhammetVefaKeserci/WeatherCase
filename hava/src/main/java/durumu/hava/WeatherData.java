@@ -32,12 +32,6 @@ public class WeatherData {
     private double temperature;
     private String weatherDescription;
 
-
-    public WeatherData(String city, LocalDate date, double temp, String description) {
-
-        this.date = date;
-    }
-
     @JsonCreator
     public WeatherData(
         String city, double temperature, String weatherDescription
@@ -49,30 +43,6 @@ public class WeatherData {
 
     public WeatherData() {
 
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public double getTemperature() {
-        return temperature;
-    }
-
-    public void setTemperature(String temperature) {
-        this.temperature = Double.parseDouble(temperature);
-    }
-
-    public String getWeatherDescription() {
-        return weatherDescription;
-    }
-
-    public void setWeatherDescription(String weatherDescription) {
-        this.weatherDescription = weatherDescription;
     }
 
 }

@@ -41,7 +41,7 @@ public class WeatherService {
 
             WeatherData weatherData = new WeatherData();
             weatherData.setCity(city);
-            weatherData.setTemperature(String.valueOf(temperature));
+            weatherData.setTemperature(Double.parseDouble(String.valueOf(temperature)));
             weatherData.setWeatherDescription(weatherDescription);
 
             return weatherData;

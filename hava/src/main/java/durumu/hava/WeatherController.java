@@ -18,18 +18,9 @@ public class WeatherController {
     private final WeatherRepo weatherRepo;
     private final RestTemplate restTemplate;
 
-    private WeatherService weatherService;
-
-    @Autowired
-    public WeatherController(RestTemplate restTemplate, WeatherRepo weatherRepo, WeatherService weatherService) {
+    public WeatherController(RestTemplate restTemplate, WeatherRepo weatherRepo) {
         this.weatherRepo = weatherRepo;
-        this.weatherService = weatherService;
         this.restTemplate = restTemplate;
-    }
-
-    @Autowired
-    public void DateController(WeatherService weatherService) {
-        this.weatherService = weatherService;
     }
 
     @GetMapping("/cities/{date}")
@@ -59,7 +50,7 @@ public class WeatherController {
         WeatherData weatherData = new WeatherData();
         weatherData.setCity(city);
         weatherData.setDate(currentDate);
-        weatherData.setTemperature(String.valueOf(temperature));
+        weatherData.setTemperature(temperature);
         weatherData.setWeatherDescription(weatherDescription);
         weatherRepo.save(weatherData);
 
