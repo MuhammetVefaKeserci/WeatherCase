@@ -1,4 +1,4 @@
-package durumu.hava;
+package durumu.hava.response;
 import lombok.Data;
 import java.time.LocalDate;
 import java.util.List;

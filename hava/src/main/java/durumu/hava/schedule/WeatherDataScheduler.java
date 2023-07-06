@@ -1,6 +1,7 @@
-package durumu.hava;
+package durumu.hava.schedule;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import durumu.hava.entities.WeatherData;
+import durumu.hava.service.WeatherService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -15,15 +16,14 @@ public class WeatherDataScheduler {
 
     private final List<String> selectedCities = Arrays.asList("London", "Istanbul", "Ankara");
 
-    @Autowired
     public WeatherDataScheduler(WeatherService weatherService) {
         this.weatherService = weatherService;
     }
-
-    @Scheduled(fixedDelay = 120000)
+    /*fixedDelay = 120000*/ /*dakikalık kullanım için koydum*/
+    @Scheduled(cron = "0 0 9-11 * * *")
     public void fetchAndSaveWeatherData() {
         for (String city : selectedCities) {
-            WeatherData weatherData = weatherService.getWeatherData(city);
+            WeatherData weatherData = weatherService.getWeatherDataForSchedule(city);
 
             if (weatherData != null) {
                 weatherData.setCity(city);
