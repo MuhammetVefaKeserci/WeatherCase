@@ -1,5 +1,6 @@
 package durumu.hava.service;
 
+
 import durumu.hava.response.WeatherApiResponse;
 import durumu.hava.entities.WeatherData;
 import durumu.hava.repository.WeatherRepo;
@@ -7,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -96,4 +96,11 @@ public class WeatherService {
     public void deleteService(String city) {
         weatherRepo.deleteByCity(city);
     }
+
+    public List<String> getRecoverItems() {
+        List<String> recoverItems = weatherRepo.getRecoverRepo();
+        return  recoverItems;
+    }
+
+
 }

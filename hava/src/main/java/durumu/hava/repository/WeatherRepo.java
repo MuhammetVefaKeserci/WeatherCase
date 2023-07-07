@@ -27,9 +27,13 @@ public interface WeatherRepo extends JpaRepository<WeatherData, Long> {
 /*
     SELECT w FROM WeatherData w WHERE w.is_deleted = true
 */
-@Query("SELECT DISTINCT w.city FROM WeatherData w WHERE w.is_deleted = false")
-List<String> getResultLists();
+    @Query("SELECT DISTINCT w.city FROM WeatherData w WHERE w.is_deleted = true")
+    List<String> getRecoverRepo();
 
+    @Query("SELECT DISTINCT w.city FROM WeatherData w WHERE w.is_deleted = false")
+    List<String> getResultLists();
+
+    WeatherData getById(Long id);
 
 
 }

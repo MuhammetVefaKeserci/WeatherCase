@@ -1,14 +1,12 @@
 package durumu.hava.controller;
-
 import durumu.hava.response.WeatherApiResponse;
 import durumu.hava.service.WeatherService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-
 import java.time.LocalDate;
 import java.util.List;
+
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -40,11 +38,13 @@ public class WeatherController {
 
     @PatchMapping("/{deleteItem}")
     public ResponseEntity<?> deleteWeather(@PathVariable("deleteItem") String city) {
-        weatherService.deleteService(city);
-        return ResponseEntity.ok().build();
+            weatherService.deleteService(city);
+            return ResponseEntity.ok().build();
+
+
     }
 
-    @PatchMapping("/{recoverItem}")
+    @PatchMapping("recover/{recoverItem}")
     public ResponseEntity<?> recoverWeather(@PathVariable("recoverItem") String city){
         weatherService.recoverService(city);
         return ResponseEntity.ok().build();
@@ -54,6 +54,12 @@ public class WeatherController {
     public ResponseEntity<List<String>> getDeletedItems() {
         List<String> deletedItems = weatherService.deleteWeatherData();
         return ResponseEntity.ok(deletedItems);
+    }
+
+    @GetMapping("getRecoverItems")
+    public ResponseEntity<?> getRecoverItems(){
+        List<String> recoverItems = weatherService.getRecoverItems();
+        return ResponseEntity.ok(recoverItems);
     }
 
 
