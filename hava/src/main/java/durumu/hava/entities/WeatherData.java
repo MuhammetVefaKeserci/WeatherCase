@@ -1,9 +1,9 @@
 package durumu.hava.entities;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -15,6 +15,7 @@ import java.time.LocalDate;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @CrossOrigin
 @Component
+@SQLDelete(sql = "UPDATE weather_data SET deleted = true WHERE id=?")
 public class WeatherData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,17 +30,13 @@ public class WeatherData {
 
     private String weatherDescription;
 
-    @Column(name = "is_deleted")
+/*    @Column(name = "is_deleted")
     private boolean is_deleted;
-    @JsonCreator
-    public WeatherData(
-        String city, double temperature, String weatherDescription, boolean is_deleted
-    ) {
-        this.city = city;
-        this.temperature = temperature;
-        this.weatherDescription = weatherDescription;
-        this.is_deleted = is_deleted;
-    }
+
+Bu eski yazdığım kod
+*/
+    @Column(name = "deleted")
+    private Boolean deleted;
 
     public WeatherData() {
 
