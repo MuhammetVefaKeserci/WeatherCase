@@ -30,16 +30,6 @@ public class WeatherData {
 
     private String weatherDescription;
 
-/*    @Column(name = "is_deleted")
-    private boolean is_deleted;
-
-Bu eski yazdığım kod
-*/
-    @Column(name = "deleted")
     private Boolean deleted;
-
-    public WeatherData() {
-
-    }
 
 }

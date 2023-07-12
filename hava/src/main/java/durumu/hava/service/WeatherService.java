@@ -1,5 +1,4 @@
 package durumu.hava.service;
-import durumu.hava.dto.WeatherDataDTO;
 import durumu.hava.response.WeatherApiResponse;
 import durumu.hava.entities.WeatherData;
 import durumu.hava.repository.WeatherRepo;
@@ -18,21 +17,18 @@ public class WeatherService {
     private final WeatherRepo weatherRepo;
     private final WeatherData weatherData;
 
-    private final WeatherApiResponse weatherApiResponse;
-
     @Value("${openweathermap.api.key}")
     private String apiKey;
 
-    public WeatherService(WeatherRepo weatherRepo, RestTemplate restTemplate, WeatherData weatherData, WeatherApiResponse weatherApiResponse) {
+    public WeatherService(WeatherRepo weatherRepo, RestTemplate restTemplate, WeatherData weatherData) {
         this.weatherRepo = weatherRepo;
         this.restTemplate = restTemplate;
         this.weatherData = weatherData;
-        this.weatherApiResponse = weatherApiResponse;
     }
 
     public void saveWeatherData(WeatherData weatherData) {
 
-        weatherRepo.save(weatherData);
+        weatherRepo.saved(weatherData);
     }
 
 
@@ -77,7 +73,7 @@ public class WeatherService {
         weatherData.setDate(currentDate);
         weatherData.setTemperature(temperature);
         weatherData.setWeatherDescription(weatherDescription);
-        weatherRepo.save(weatherData);
+        weatherRepo.saved(weatherData);
     }
 
     public List<String> findCities(LocalDate date) {
@@ -87,13 +83,13 @@ public class WeatherService {
         return cities;
 
     }
-    @Transactional
+    /*@Transactional
     public WeatherApiResponse deleted(WeatherDataDTO weatherDataDTO) {
 
         weatherRepo.getWeatherDataDTOByCity(weatherDataDTO.getCity());
 
         return null;
-    }
+    }*/
 
     @Transactional
     public void deleteByList(WeatherData weatherDataDTO){
@@ -110,11 +106,12 @@ public class WeatherService {
 
         return deleteItems;
     }
+    
+    
 
 
-    public void recoverService(WeatherDataDTO weatherDataDTO) {
-        weatherRepo.recoverByCity(weatherDataDTO.getCity());
-
+    public void recoverService(String city) {
+        weatherRepo.recoverByCity(city);
     }
     
     public List<WeatherData> getWeatherDataByCity(WeatherData weatherDataDTO) {
@@ -134,7 +131,23 @@ public class WeatherService {
         return  recoverItems;
     }
 
+@Transactional
+    public void deleteService(String city) {
+        weatherRepo.deleteByCity(city);
+    }
 
+    public boolean getOneDeletedItems(WeatherData weatherData) {
+
+        boolean resultLists2 = weatherRepo.getResultLists2(weatherData.getCity());
+
+        return resultLists2;
+
+    }
+
+    public List<WeatherData> findByCity(String city) {
+        List<WeatherData> byCity = weatherRepo.findByCity(city);
+        return byCity;
+    }
 }
 
 
