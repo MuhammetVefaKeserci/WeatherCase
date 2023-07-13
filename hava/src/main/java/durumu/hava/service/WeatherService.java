@@ -56,8 +56,11 @@ public class WeatherService {
     }
 
     public WeatherApiResponse getWeatherData(String city) {
+
         String url = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apiKey;
+
         ResponseEntity<WeatherApiResponse> response = restTemplate.getForEntity(url, WeatherApiResponse.class);
+
         return response.getBody();
     }
 
@@ -83,22 +86,15 @@ public class WeatherService {
         return cities;
 
     }
-    /*@Transactional
-    public WeatherApiResponse deleted(WeatherDataDTO weatherDataDTO) {
-
-        weatherRepo.getWeatherDataDTOByCity(weatherDataDTO.getCity());
-
-        return null;
-    }*/
 
     @Transactional
-    public void deleteByList(WeatherData weatherDataDTO){
-        String city = weatherDataDTO.getCity();
+    public void deleteByList(WeatherData weatherData) {
+
+        String city = weatherData.getCity();
+
         weatherRepo.deleteAllByCity(city);
 
     }
-
-
 
     public List<String> deleteWeatherData() {
 
@@ -106,34 +102,35 @@ public class WeatherService {
 
         return deleteItems;
     }
-    
-    
-
 
     public void recoverService(String city) {
+
         weatherRepo.recoverByCity(city);
+
     }
     
     public List<WeatherData> getWeatherDataByCity(WeatherData weatherDataDTO) {
 
         List<WeatherData> weatherDataDTOByCity = weatherRepo.getWeatherDataDTOByCity(weatherDataDTO.getCity());
+
         return weatherDataDTOByCity;
+
     }
 
-    
-    
-    /*public void deleteService(String city) {
-        weatherRepo.deleteByCity(city);
-    }*/
 
     public List<String> getRecoverItems() {
+
         List<String> recoverItems = weatherRepo.getRecoverRepo();
+
         return  recoverItems;
+
     }
 
-@Transactional
+    @Transactional
     public void deleteService(String city) {
+
         weatherRepo.deleteByCity(city);
+
     }
 
     public boolean getOneDeletedItems(WeatherData weatherData) {
@@ -145,8 +142,11 @@ public class WeatherService {
     }
 
     public List<WeatherData> findByCity(String city) {
+
         List<WeatherData> byCity = weatherRepo.findByCity(city);
+
         return byCity;
+
     }
 }
 

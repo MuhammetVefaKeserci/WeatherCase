@@ -36,13 +36,17 @@ public class WeatherController {
             return ResponseEntity.ok(weatherApiResponse);
         }
         else {
+
             return ResponseEntity.badRequest().body("şehir bulunamadı");
+
         }
     }
 
     @GetMapping("/cities/date")
     public ResponseEntity<List<String>> getCitiesByDate(@RequestBody WeatherData date) {
+
         List<String> cities = weatherService.findCities(date.getDate());
+
         if (!cities.isEmpty()) {
 
             return ResponseEntity.ok(cities);
