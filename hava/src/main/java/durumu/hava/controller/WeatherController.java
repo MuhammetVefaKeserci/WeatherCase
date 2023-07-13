@@ -29,17 +29,10 @@ public class WeatherController {
 
         WeatherApiResponse weatherApiResponse = weatherService.getWeatherData(city.getCity());
 
-        if (!weatherApiResponse.getWeather().isEmpty()){
-
             weatherService.saveWeatherData(weatherApiResponse, city.getCity());
 
             return ResponseEntity.ok(weatherApiResponse);
-        }
-        else {
 
-            return ResponseEntity.badRequest().body("şehir bulunamadı");
-
-        }
     }
 
     @GetMapping("/cities/date")
@@ -104,17 +97,17 @@ public class WeatherController {
     }
 
     @PatchMapping("recover")
-    public ResponseEntity<?> recoverWeather(@RequestBody WeatherData weatherDataDTO){
+    public ResponseEntity<?> recoverWeather(@RequestBody WeatherData weatherData){
     try {
-    List<WeatherData> byCity = weatherService.findByCity(weatherDataDTO.getCity());
+    List<WeatherData> byCity = weatherService.findByCity(weatherData.getCity());
     if (byCity.isEmpty()) {
         return ResponseEntity.badRequest().body("yanlış bilgi girişi");
     } else {
-        boolean isDeleted = weatherService.getOneDeletedItems(weatherDataDTO);
+        boolean isDeleted = weatherService.getOneDeletedItems(weatherData);
         if (isDeleted == false) {
             return ResponseEntity.badRequest().body("Bu öğe database de mevcut");
         } else {
-            weatherService.recoverService(weatherDataDTO.getCity());
+            weatherService.recoverService(weatherData.getCity());
             return ResponseEntity.ok("Başarılı");
         }
     }
