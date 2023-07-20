@@ -4,10 +4,13 @@ import durumu.hava.response.WeatherApiResponse;
 import durumu.hava.service.WeatherService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 @RestController
@@ -16,6 +19,7 @@ import java.util.List;
 public class WeatherController {
 
     private final WeatherService weatherService;
+    private static final Logger LOGGER = Logger.getLogger(WeatherController.class.getName());
 
 
 
@@ -52,7 +56,7 @@ public class WeatherController {
     @DeleteMapping("/deleteAllSameData")
         public ResponseEntity<String> deleteWeather(@RequestBody WeatherData weatherDataDTO) {
 
-        List<WeatherData> city = weatherService.getWeatherDataByCity( weatherDataDTO);
+        List<WeatherData> city = weatherService.getWeatherDataByCity(weatherDataDTO);
 
         if (!city.isEmpty()) {
 
@@ -72,31 +76,34 @@ public class WeatherController {
 
 
     @DeleteMapping("/deleteItem")
-    public ResponseEntity<String> delete(@RequestBody WeatherData weatherDataDTO) {
-        try {
-            List<WeatherData> byCity = weatherService.findByCity(weatherDataDTO.getCity());
-            /*Boolean b=byCity.isEmpty()*/
-            if(byCity.isEmpty()){
-                return ResponseEntity.badRequest().body("bu öğe database de mevcut değil");
-            }
-            else {
-                boolean isDeleted = weatherService.getOneDeletedItems(weatherDataDTO);
-                if (isDeleted ==  true) {
-                    return ResponseEntity.badRequest().body("Bu öğe silinmiş");
-                }
-                else{
-                    weatherService.deleteService(weatherDataDTO.getCity());
-                    return ResponseEntity.ok("Başarılı");
-                }
-            }
+    public CompletableFuture<String> delete(@RequestBody WeatherData weatherDataDTO) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                List<WeatherData> byCity = weatherService.findByCity(weatherDataDTO.getCity());
 
-        } catch (HttpClientErrorException.NotFound ex) {
-            String responseBody = ex.getResponseBodyAsString();
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
-        }
+                if (byCity.isEmpty()) {
+                    return "Bu öğe veritabanında mevcut değil";
+                } else {
+                    CompletableFuture<Boolean> isDeletedFuture = weatherService.getOneDeletedItems(weatherDataDTO);
+
+                    boolean isDeleted = isDeletedFuture.get();
+
+                    if (isDeleted) {
+                        return "Bu öğe silinmiş";
+                    } else {
+                        weatherService.deleteService(weatherDataDTO.getCity());
+                        return "Başarılı";
+                    }
+                }
+            } catch (Exception ex) {
+                LOGGER.log(Level.SEVERE, "Beklenmedik hata");
+                return "Bir hata oluştu";
+            }
+        });
     }
 
-    @PatchMapping("recover")
+
+    /*@PatchMapping("recover")
     public ResponseEntity<?> recoverWeather(@RequestBody WeatherData weatherData){
     try {
     List<WeatherData> byCity = weatherService.findByCity(weatherData.getCity());
@@ -116,23 +123,53 @@ public class WeatherController {
         String responseBody = e.getResponseBodyAsString();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
     }
+    }*/
+
+    @PatchMapping("/recover")
+    public CompletableFuture<ResponseEntity<?>> recoverWeather(@RequestBody WeatherData weatherData) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                List<WeatherData> byCity = weatherService.findByCity(weatherData.getCity());
+                if (byCity.isEmpty()) {
+                    return ResponseEntity.badRequest().body("Yanlış bilgi girişi");
+                } else {
+                    CompletableFuture<Boolean> isDeletedFuture = weatherService.getOneDeletedItems(weatherData);
+
+                    boolean isDeleted = isDeletedFuture.get();
+
+                    if (!isDeleted) {
+                        return ResponseEntity.badRequest().body("Bu öğe veritabanında mevcut");
+                    } else {
+                        weatherService.recoverService(weatherData.getCity());
+                        return ResponseEntity.ok("Başarılı");
+                    }
+                }
+            } catch (Exception e) {
+                LOGGER.log(Level.INFO, "Beklenmedik hata oluştu");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Bir hata oluştu");
+            }
+        });
     }
 
+    @Async
     @GetMapping("getDeletedItems")
-    public ResponseEntity<List<String>> getDeletedItems() {
-
+    public CompletableFuture<Object> getDeletedItems() {
+return CompletableFuture.supplyAsync(() -> {
         List<String> deletedItems = weatherService.deleteWeatherData();
 
         if (deletedItems.isEmpty()){
-
-            return ResponseEntity.badRequest().body(Collections.singletonList("Silinen öğe bulunamadı"));
+            LOGGER.log(Level.INFO, "Silinen öğe bulunamadı");
+            return "silinen öğe bulunamadı";
 
         }
         else {
 
-        return ResponseEntity.ok(deletedItems);
+        /*return ResponseEntity.ok(deletedItems);*/
+            LOGGER.log(Level.INFO, "Silinen Öğeler:" + deletedItems);
+            return CompletableFuture.completedFuture(deletedItems);
 
         }
+    });
     }
 
     @GetMapping("getRecoverItems")
@@ -142,6 +179,8 @@ public class WeatherController {
 
         return ResponseEntity.ok(recoverItems);
     }
+
+
 }
 
 

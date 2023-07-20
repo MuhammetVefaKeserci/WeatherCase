@@ -4,11 +4,12 @@ import durumu.hava.entities.WeatherData;
 import durumu.hava.repository.WeatherRepo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class WeatherService {
@@ -16,6 +17,8 @@ public class WeatherService {
     private final RestTemplate restTemplate;
     private final WeatherRepo weatherRepo;
     private final WeatherData weatherData;
+
+
 
     @Value("${openweathermap.api.key}")
     private String apiKey;
@@ -45,7 +48,7 @@ public class WeatherService {
             double temperature = main.getTemp();
             String weatherDescription = weather.getDescription();
 
-            weatherData.setCity(city);
+            weatherData.setCity(String.valueOf(city));
             weatherData.setTemperature(Double.parseDouble(String.valueOf(temperature)));
             weatherData.setWeatherDescription(weatherDescription);
 
@@ -59,9 +62,9 @@ public class WeatherService {
 
         String url = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apiKey;
 
-        ResponseEntity<WeatherApiResponse> response = restTemplate.getForEntity(url, WeatherApiResponse.class);
+        WeatherApiResponse response = restTemplate.getForEntity(url, WeatherApiResponse.class).getBody();
 
-        return response.getBody();
+        return response; //return response.getBody();
     }
 
     public void saveWeatherData(WeatherApiResponse weatherApiResponse, String city) {
@@ -126,19 +129,17 @@ public class WeatherService {
 
     }
 
+    @Async
     @Transactional
-    public void deleteService(String city) {
-
+    public CompletableFuture<String> deleteService(String city) {
         weatherRepo.deleteByCity(city);
-
+        return CompletableFuture.completedFuture("İşlem tamamlandı");
     }
 
-    public boolean getOneDeletedItems(WeatherData weatherData) {
-
+    @Async
+    public CompletableFuture<Boolean> getOneDeletedItems(WeatherData weatherData) {
         boolean resultLists2 = weatherRepo.getResultLists2(weatherData.getCity());
-
-        return resultLists2;
-
+        return CompletableFuture.completedFuture(resultLists2);
     }
 
     public List<WeatherData> findByCity(String city) {
@@ -148,6 +149,7 @@ public class WeatherService {
         return byCity;
 
     }
+
 }
 
 
