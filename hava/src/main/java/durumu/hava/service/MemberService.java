@@ -28,8 +28,8 @@ private final SelectedRepo selectedRepo;
 
 
 
-    public Optional<Member> getCity(Long request) {
-        return memberRepo.findById(request);
+    public Optional<Member> getUserById(Long memberId) {
+        return memberRepo.findById(memberId);
     }
 
     public void updateUser(Member member1) {
@@ -63,7 +63,7 @@ private final SelectedRepo selectedRepo;
         }
     }
 
-    public List<String> getSelectedCitiesByMember(Member member) {
+/*    public List<String> getSelectedCitiesByMember(Member member) {
         List<SelectedItems> selectedItems = member.getSelectedItems();
         return selectedItems.stream()
                 .map(SelectedItems::getCity)
@@ -78,5 +78,5 @@ private final SelectedRepo selectedRepo;
     public List<Member> getAllMembers() {
         Member member = (Member) memberRepo.findAll();
         return (List<Member>) member;
-    }
+    }*/
 }

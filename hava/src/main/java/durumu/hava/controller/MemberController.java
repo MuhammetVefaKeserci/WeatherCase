@@ -30,7 +30,7 @@ public class MemberController {
     @PostMapping("/select/items")
     public ResponseEntity<String> selectCity(@RequestBody CitySelectionRequest request) {
 
-        Optional<Member> optionalMember = memberService.getCity(request.getCityId());
+        Optional<Member> optionalMember = memberService.getUserById(request.getUserId());
         if (!optionalMember.isPresent()) {
             return ResponseEntity.badRequest().body("kullanıcı bulunamadı");
         }
@@ -53,8 +53,8 @@ public class MemberController {
     }
 
     @GetMapping("/selected")
-    public ResponseEntity<Object> getSelectedCitiesByUserId(@RequestBody CitySelectionRequest userId) {
-        List<Long> selectedCityIds = memberService.getSelectedCityIdsByUserId(userId.getUserId());
+    public ResponseEntity<Object> getSelectedCitiesByUserId(@RequestBody CitySelectionRequest selectionRequest) {
+        List<Long> selectedCityIds = memberService.getSelectedCityIdsByUserId(selectionRequest.getUserId());
         return ResponseEntity.ok(selectedCityIds);
     }
 
