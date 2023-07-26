@@ -30,31 +30,16 @@ public class WeatherController {
 
     @GetMapping("/city")
     public ResponseEntity<?> getWeather(@RequestBody WeatherData city) {
+        CompletableFuture<WeatherApiResponse> weatherFuture = weatherService.getWeatherDataAsync(city.getCity());
 
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        try {
+            WeatherApiResponse weatherApiResponse = weatherFuture.get();
+            weatherService.saveWeatherDataAsync(weatherApiResponse, city.getCity());
+            return ResponseEntity.ok(weatherApiResponse);
+        } catch (InterruptedException | ExecutionException e) {
 
-        Callable<WeatherApiResponse> weatherCallable = () -> weatherService.getWeatherData(city.getCity());
-
-            Callable<Void> saveCallable = () -> {
-                WeatherApiResponse weatherApiResponse = weatherCallable.call();
-                weatherService.saveWeatherData(weatherApiResponse, city.getCity());
-                return null;
-            };
-            try {
-                Future<WeatherApiResponse> weatherFuture = executorService.submit(weatherCallable);
-                Future<Void> saveFuture = executorService.submit(saveCallable);
-
-                WeatherApiResponse weatherApiResponse = weatherFuture.get();
-                saveFuture.get();
-
-                executorService.shutdown();
-                executorService.awaitTermination(5, TimeUnit.SECONDS);
-
-                return ResponseEntity.ok(weatherApiResponse);
-            }catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Bir hata oluştu.");
-
-            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Bir hata oluştu.");
+        }
     }
 
     @GetMapping("/cities/date")
@@ -72,9 +57,27 @@ public class WeatherController {
         }
     }
     @DeleteMapping("/deleteAllSameData")
-        public String deleteWeather(@RequestBody WeatherData weatherDataDTO) {
+    public ResponseEntity<String> deleteWeather(@RequestBody WeatherData weatherDataDTO) {
 
-        List<WeatherData> cities = weatherService.getWeatherDataByCity(weatherDataDTO);
+        List<WeatherData> city = weatherService.getWeatherDataByCity(weatherDataDTO);
+
+        if (!city.isEmpty()) {
+
+            weatherService.deleteByList(weatherDataDTO);
+
+            return ResponseEntity.ok("success");
+
+        } else if (city.isEmpty()) {
+
+            return ResponseEntity.badRequest().body("error");
+
+        }
+        else {
+            return null;
+        }
+    }
+
+/*        List<WeatherData> cities = weatherService.getWeatherDataByCity(weatherData);
 
         for (WeatherData city : cities) {
 
@@ -85,7 +88,7 @@ public class WeatherController {
             }
         }
         return "error";
-    }
+    }*/
         /*for (int i = 0; i < cities.size(); i++) {
             WeatherData city = cities.get(i);
 
@@ -115,22 +118,22 @@ public class WeatherController {
 
 
     @DeleteMapping("/deleteItem")
-    public CompletableFuture<String> delete(@RequestBody WeatherData weatherDataDTO) {
+    public CompletableFuture<String> delete(@RequestBody WeatherData weatherData) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                List<WeatherData> byCity = weatherService.findByCity(weatherDataDTO.getCity());
+                List<WeatherData> byCity = weatherService.findByCity(weatherData.getCity());
 
                 if (byCity.isEmpty()) {
                     return "Bu öğe veritabanında mevcut değil";
                 } else {
-                    CompletableFuture<Boolean> isDeletedFuture = weatherService.getOneDeletedItems(weatherDataDTO);
+                    CompletableFuture<Boolean> isDeletedFuture = weatherService.getOneDeletedItems(weatherData);
 
                     boolean isDeleted = isDeletedFuture.get();
 
                     if (isDeleted) {
                         return "Bu öğe silinmiş";
                     } else {
-                        weatherService.deleteService(weatherDataDTO.getCity());
+                        weatherService.deleteService(weatherData.getCity());
                         return "Başarılı";
                     }
                 }
@@ -218,6 +221,7 @@ return CompletableFuture.supplyAsync(() -> {
 
         return ResponseEntity.ok(recoverItems);
     }
+
 
 
 }

@@ -18,10 +18,16 @@ public class SelectedService {
         return selectedRepo.findById(cityId);
     }
 
+
+
     public SelectedItems updateCity(SelectedItems city) {
         return selectedRepo.saveAndFlush(city);
     }
 
+
+    public void save(SelectedItems newCity) {
+        selectedRepo.save(newCity);
+    }
 
 
 }

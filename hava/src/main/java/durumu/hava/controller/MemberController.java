@@ -2,9 +2,11 @@ package durumu.hava.controller;
 
 import durumu.hava.entities.Member;
 import durumu.hava.entities.SelectedItems;
+import durumu.hava.repository.MemberRepo;
 import durumu.hava.requests.CitySelectionRequest;
 import durumu.hava.service.MemberService;
 import durumu.hava.service.SelectedService;
+import jakarta.transaction.Transactional;
 import lombok.Data;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -19,35 +21,46 @@ import java.util.Optional;
 @CrossOrigin(origins = "*")
 public class MemberController {
 
+
+
     private MemberService memberService;
     private SelectedService selectedService;
+    private MemberRepo memberRepo;
 
-    public MemberController(MemberService memberService, SelectedService selectedService) {
+    public MemberController(MemberService memberService, SelectedService selectedService,MemberRepo memberRepo) {
         this.memberService = memberService;
         this.selectedService = selectedService;
+        this.memberRepo = memberRepo;
     }
 
-    @PostMapping("/select/items")
-    public ResponseEntity<String> selectCity(@RequestBody CitySelectionRequest request) {
 
+
+    @PostMapping("/select/items")
+    @Transactional
+    public ResponseEntity<String> selectCity(@RequestBody CitySelectionRequest request) {
         Optional<Member> optionalMember = memberService.getUserById(request.getUserId());
-        if (!optionalMember.isPresent()) {
-            return ResponseEntity.badRequest().body("kullanıcı bulunamadı");
+        Optional<SelectedItems> optionalCity = selectedService.getCityById(request.getCityId());
+
+        if (optionalMember.isEmpty()) {
+            return ResponseEntity.badRequest().body("Kullanıcı bulunamadı");
         }
 
-        Optional<SelectedItems> optionalCity = selectedService.getCityById(request.getCityId());
-        if (!optionalCity.isPresent()) {
+        if (optionalCity.isEmpty()) {
             return ResponseEntity.badRequest().body("Geçersiz şehir ID'si");
         }
 
         Member member = optionalMember.get();
         SelectedItems city = optionalCity.get();
+if (member.getSelectedItems().isEmpty()){
+    member.getSelectedItems().add(city);
+}
+else {
+    memberRepo.updateUser(request);
 
-        member.getSelectedItems().add(city);
-        memberService.updateUser(member);
+    city.getMembers().add(member);
+    selectedService.updateCity(city);
+}
 
-        city.getMembers().add(member);
-        selectedService.updateCity(city);
 
         return ResponseEntity.ok("Seçilen şehir güncellendi: " + city.getCity());
     }

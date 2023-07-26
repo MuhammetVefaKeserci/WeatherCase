@@ -4,7 +4,10 @@ import durumu.hava.entities.Member;
 import durumu.hava.entities.SelectedItems;
 import durumu.hava.repository.MemberRepo;
 import durumu.hava.repository.SelectedRepo;
+import durumu.hava.requests.CitySelectionRequest;
+import jakarta.transaction.Transactional;
 import lombok.Data;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,7 +19,7 @@ import java.util.stream.Collectors;
 public class MemberService {
 
     private final MemberRepo memberRepo;
-private final SelectedRepo selectedRepo;
+    private final SelectedRepo selectedRepo;
 
 
     public MemberService(MemberRepo memberRepo, SelectedRepo selectedRepo){
@@ -28,13 +31,13 @@ private final SelectedRepo selectedRepo;
 
 
 
-    public Optional<Member> getUserById(Long memberId) {
-        return memberRepo.findById(memberId);
+/*    public Optional<Member> getCity(Long request) {
+        return memberRepo.findById(request);
     }
 
     public void updateUser(Member member1) {
         memberRepo.saveAndFlush(member1);
-    }
+    }*/
 
     public List<Long> getSelectedCityIdsByUserId(Long userId) {
         Optional<Member> optionalMember = memberRepo.findById(userId);
@@ -62,6 +65,23 @@ private final SelectedRepo selectedRepo;
             throw new IllegalArgumentException("Geçersiz kullanıcı ID'si");
         }
     }
+
+/*    public List<String> getSelectedCitiesByMember(Member member) {
+        List<SelectedItems> selectedItems = member.getSelectedItems();
+        return selectedItems.stream()
+                .map(SelectedItems::getCity)
+                .collect(Collectors.toList());
+    }*/
+
+    public Optional<Member> getUserById(Long memberId) {
+        Optional<Member> member = memberRepo.findById(memberId);
+        return member;
+    }
+
+    /*public List<Member> getAllMembers() {
+        Member member = (Member) memberRepo.findAll();
+        return (List<Member>) member;
+    }*/
 
 /*    public List<String> getSelectedCitiesByMember(Member member) {
         List<SelectedItems> selectedItems = member.getSelectedItems();

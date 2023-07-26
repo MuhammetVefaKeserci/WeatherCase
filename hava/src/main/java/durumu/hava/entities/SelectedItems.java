@@ -12,10 +12,11 @@ import java.util.List;
 @Component
 public class SelectedItems {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private Long selectedId;
 
     private String city;
+
 
     @ManyToMany(fetch = FetchType.EAGER,mappedBy = "selectedItems")
     private List<Member> members = new ArrayList<>();

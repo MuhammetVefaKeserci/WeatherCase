@@ -58,28 +58,27 @@ public class WeatherService {
         return null;
     }
 
-    public WeatherApiResponse getWeatherData(String city) {
-
+    public CompletableFuture<WeatherApiResponse> getWeatherDataAsync(String city) {
         String url = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + apiKey;
 
-        WeatherApiResponse response = restTemplate.getForEntity(url, WeatherApiResponse.class).getBody();
-
-        return response; //return response.getBody();
+        return CompletableFuture.supplyAsync(() -> restTemplate.getForEntity(url, WeatherApiResponse.class).getBody());
     }
 
-    public void saveWeatherData(WeatherApiResponse weatherApiResponse, String city) {
+    public CompletableFuture<Void> saveWeatherDataAsync(WeatherApiResponse weatherApiResponse, String city) {
+    return  CompletableFuture.runAsync(() -> {
 
-        double temperature = weatherApiResponse.getMain().getTemp();
+    double temperature = weatherApiResponse.getMain().getTemp();
 
-        String weatherDescription = weatherApiResponse.getWeather().get(0).getDescription();
+    String weatherDescription = weatherApiResponse.getWeather().get(0).getDescription();
 
-        LocalDate currentDate = LocalDate.now();
+    LocalDate currentDate = LocalDate.now();
+    weatherData.setCity(city);
+    weatherData.setDate(currentDate);
+    weatherData.setTemperature(temperature);
+    weatherData.setWeatherDescription(weatherDescription);
+    weatherRepo.saved(weatherData);
 
-        weatherData.setCity(city);
-        weatherData.setDate(currentDate);
-        weatherData.setTemperature(temperature);
-        weatherData.setWeatherDescription(weatherDescription);
-        weatherRepo.saved(weatherData);
+       });
     }
 
     public List<String> findCities(LocalDate date) {
