@@ -112,9 +112,9 @@ public class WeatherService {
 
     }
     
-    public List<WeatherData> getWeatherDataByCity(WeatherData weatherDataDTO) {
+    public List<WeatherData> getWeatherDataByCity(WeatherData weatherdata) {
 
-        List<WeatherData> weatherDataDTOByCity = weatherRepo.getWeatherDataDTOByCity(weatherDataDTO.getCity());
+        List<WeatherData> weatherDataDTOByCity = weatherRepo.getWeatherDataDTOByCity(weatherdata.getCity());
 
         return weatherDataDTOByCity;
 

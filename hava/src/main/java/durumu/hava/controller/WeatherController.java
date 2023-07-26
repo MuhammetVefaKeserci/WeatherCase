@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,12 +31,30 @@ public class WeatherController {
     @GetMapping("/city")
     public ResponseEntity<?> getWeather(@RequestBody WeatherData city) {
 
-        WeatherApiResponse weatherApiResponse = weatherService.getWeatherData(city.getCity());
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
 
-            weatherService.saveWeatherData(weatherApiResponse, city.getCity());
+        Callable<WeatherApiResponse> weatherCallable = () -> weatherService.getWeatherData(city.getCity());
 
-            return ResponseEntity.ok(weatherApiResponse);
+            Callable<Void> saveCallable = () -> {
+                WeatherApiResponse weatherApiResponse = weatherCallable.call();
+                weatherService.saveWeatherData(weatherApiResponse, city.getCity());
+                return null;
+            };
+            try {
+                Future<WeatherApiResponse> weatherFuture = executorService.submit(weatherCallable);
+                Future<Void> saveFuture = executorService.submit(saveCallable);
 
+                WeatherApiResponse weatherApiResponse = weatherFuture.get();
+                saveFuture.get();
+
+                executorService.shutdown();
+                executorService.awaitTermination(5, TimeUnit.SECONDS);
+
+                return ResponseEntity.ok(weatherApiResponse);
+            }catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Bir hata oluştu.");
+
+            }
     }
 
     @GetMapping("/cities/date")
@@ -54,11 +72,31 @@ public class WeatherController {
         }
     }
     @DeleteMapping("/deleteAllSameData")
-        public ResponseEntity<String> deleteWeather(@RequestBody WeatherData weatherDataDTO) {
+        public String deleteWeather(@RequestBody WeatherData weatherDataDTO) {
 
-        List<WeatherData> city = weatherService.getWeatherDataByCity(weatherDataDTO);
+        List<WeatherData> cities = weatherService.getWeatherDataByCity(weatherDataDTO);
 
-        if (!city.isEmpty()) {
+        for (WeatherData city : cities) {
+
+            if (!city.getCity().isEmpty()) {
+                weatherService.deleteByList(city);
+
+                return "success";
+            }
+        }
+        return "error";
+    }
+        /*for (int i = 0; i < cities.size(); i++) {
+            WeatherData city = cities.get(i);
+
+            if (!city.getCity().isEmpty()) {
+                weatherService.deleteByList(city);
+                return "success";
+            }
+        }
+        return "error";*/
+
+  /*      if (!city.isEmpty()) {
 
             weatherService.deleteByList(weatherDataDTO);
 
@@ -71,8 +109,9 @@ public class WeatherController {
              }
              else {
                  return null;
-             }
-         }
+             }*/
+
+
 
 
     @DeleteMapping("/deleteItem")
